@@ -28,7 +28,6 @@ import org.whispersystems.textsecuregcm.push.RetryingApnsClient.ApnResult;
 import org.whispersystems.textsecuregcm.storage.Account;
 import org.whispersystems.textsecuregcm.storage.AccountsManager;
 import org.whispersystems.textsecuregcm.storage.Device;
-import org.whispersystems.textsecuregcm.websocket.WebsocketAddress;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -71,9 +70,7 @@ public class APNSender implements Managed {
     this.bundleId        = bundleId;
   }
 
-  public ListenableFuture<ApnResult> sendMessage(final ApnMessage message)
-      throws TransientPushFailureException
-  {
+  public ListenableFuture<ApnResult> sendMessage(final ApnMessage message) {
     String topic = bundleId;
 
     if (message.isVoip()) {
@@ -121,8 +118,8 @@ public class APNSender implements Managed {
     this.fallbackManager = fallbackManager;
   }
 
-  private void handleUnregisteredUser(String registrationId, String number, int deviceId) {
-    logger.info("Got APN Unregistered: " + number + "," + deviceId);
+  private void handleUnregisteredUser(String registrationId, String number, long deviceId) {
+//    logger.info("Got APN Unregistered: " + number + "," + deviceId);
 
     Optional<Account> account = accountsManager.get(number);
 
@@ -145,11 +142,11 @@ public class APNSender implements Managed {
       return;
     }
 
-    if (registrationId.equals(device.get().getApnId())) {
-      logger.info("APN Unregister APN ID matches! " + number + ", " + deviceId);
-    } else if (registrationId.equals(device.get().getVoipApnId())) {
-      logger.info("APN Unregister VoIP ID matches! " + number + ", " + deviceId);
-    }
+//    if (registrationId.equals(device.get().getApnId())) {
+//      logger.info("APN Unregister APN ID matches! " + number + ", " + deviceId);
+//    } else if (registrationId.equals(device.get().getVoipApnId())) {
+//      logger.info("APN Unregister VoIP ID matches! " + number + ", " + deviceId);
+//    }
 
     long tokenTimestamp = device.get().getPushTimestamp();
 
@@ -159,7 +156,7 @@ public class APNSender implements Managed {
       return;
     }
 
-    logger.info("APN Unregister timestamp matches: " + device.get().getApnId() + ", " + device.get().getVoipApnId());
+//    logger.info("APN Unregister timestamp matches: " + device.get().getApnId() + ", " + device.get().getVoipApnId());
 //    device.get().setApnId(null);
 //    device.get().setVoipApnId(null);
 //    device.get().setFetchesMessages(false);
@@ -168,5 +165,9 @@ public class APNSender implements Managed {
 //    if (fallbackManager != null) {
 //      fallbackManager.cancel(new WebsocketAddress(number, deviceId));
 //    }
+
+    if (fallbackManager != null) {
+      fallbackManager.cancel(account.get(), device.get());
+    }
   }
 }
