@@ -2,6 +2,9 @@ package org.whispersystems.dispatch.redis.protocol;
 
 import java.io.IOException;
 
+/**
+ * 数组以*符号开头，后跟数组长度
+ */
 public class ArrayReplyHeader {
 
   private final int elementCount;

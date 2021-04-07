@@ -6,7 +6,13 @@ import java.io.InputStream;
 
 public class RedisInputStream {
 
+  /**
+   * \r
+   */
   private static final byte CR = 0x0D;
+  /**
+   * \n
+   */
   private static final byte LF = 0x0A;
 
   private final InputStream inputStream;
@@ -15,6 +21,11 @@ public class RedisInputStream {
     this.inputStream = inputStream;
   }
 
+  /**
+   * 通过解析连续的两个字节是否分别是 \r\n 来读取一行
+   * @return
+   * @throws IOException
+   */
   public String readLine() throws IOException {
     ByteArrayOutputStream boas = new ByteArrayOutputStream();
 
@@ -38,6 +49,12 @@ public class RedisInputStream {
     return new String(data, 0, data.length-2);
   }
 
+  /**
+   * 读取指定长度的字节
+   * @param size
+   * @return
+   * @throws IOException
+   */
   public byte[] readFully(int size) throws IOException {
     byte[] result    = new byte[size];
     int    offset    = 0;

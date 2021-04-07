@@ -27,6 +27,9 @@ import java.util.Optional;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
+/**
+ * 注册中的账号
+ */
 public class PendingAccounts {
 
   private final MetricRegistry metricRegistry        = SharedMetricRegistries.getOrCreate(Constants.METRICS_NAME);

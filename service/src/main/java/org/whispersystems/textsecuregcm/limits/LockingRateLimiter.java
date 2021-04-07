@@ -10,6 +10,13 @@ import org.whispersystems.textsecuregcm.util.Constants;
 import static com.codahale.metrics.MetricRegistry.name;
 import redis.clients.jedis.Jedis;
 
+/**
+ * 增加了redis全局锁
+ * key针对具体的用户，可以防止重复提交（因为获取不到锁），
+ * 如果key相同（粗力度），则在并发限流时会因为获取不到锁而失败，
+ * 因此适合细粒度的限流
+ * 粗粒度限流可以借助 redis-cell 模块
+ */
 public class LockingRateLimiter extends RateLimiter {
 
   private final Meter meter;
@@ -18,6 +25,7 @@ public class LockingRateLimiter extends RateLimiter {
     super(cacheClient, name, bucketSize, leakRatePerMinute);
 
     MetricRegistry metricRegistry = SharedMetricRegistries.getOrCreate(Constants.METRICS_NAME);
+    //统计锁获取失败的次数
     this.meter = metricRegistry.meter(name(getClass(), name, "locked"));
   }
 

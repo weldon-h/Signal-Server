@@ -32,6 +32,9 @@ import java.util.UUID;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
+/**
+ * 账号-操作数据库
+ */
 public class Accounts {
 
   public static final String ID     = "id";
@@ -134,6 +137,12 @@ public class Accounts {
     }));
   }
 
+  /**
+   * VACUUM回收死行占据的存储空间。在一般的PostgreSQL 操作里，
+   * 那些已经 DELETE 的行或者被 UPDATE 过后过时的行并没有从它们所属的表中物理删除；
+   * 在完成VACUUM之前它们仍然存在。因此有必要周期地运行VACUUM，
+   * 特别是在经常更新的表上。
+   */
   public void vacuum() {
     database.use(jdbi -> jdbi.useHandle(handle -> {
       try (Timer.Context ignored = vacuumTimer.time()) {

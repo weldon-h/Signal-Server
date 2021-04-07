@@ -2,6 +2,9 @@ package org.whispersystems.dispatch.redis.protocol;
 
 import java.io.IOException;
 
+/**
+ * 整数值以:符号开头，后跟整数的字符串形式
+ */
 public class IntReply {
 
   private final int value;

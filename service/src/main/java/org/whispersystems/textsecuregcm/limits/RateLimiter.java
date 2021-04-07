@@ -33,6 +33,9 @@ import java.io.IOException;
 import static com.codahale.metrics.MetricRegistry.name;
 import redis.clients.jedis.Jedis;
 
+/**
+ * 漏斗模型限流器
+ */
 public class RateLimiter {
 
   private final Logger       logger = LoggerFactory.getLogger(RateLimiter.class);
@@ -57,6 +60,7 @@ public class RateLimiter {
   {
     MetricRegistry metricRegistry = SharedMetricRegistries.getOrCreate(Constants.METRICS_NAME);
 
+    //统计漏斗溢出次数
     this.meter             = metricRegistry.meter(name(getClass(), name, "exceeded"));
     this.cacheClient       = cacheClient;
     this.name              = name;
@@ -89,6 +93,7 @@ public class RateLimiter {
   private void setBucket(String key, LeakyBucket bucket) {
     try (Jedis jedis = cacheClient.getWriteResource()) {
       String serialized = bucket.serialize(mapper);
+      //更新限流信息，并设置失效时间
       jedis.setex(getBucketName(key), (int) Math.ceil((bucketSize / leakRatePerMillis) / 1000), serialized);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);

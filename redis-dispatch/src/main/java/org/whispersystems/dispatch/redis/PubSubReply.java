@@ -3,6 +3,9 @@ package org.whispersystems.dispatch.redis;
 
 import java.util.Optional;
 
+/**
+ * 封装redis服务端响应
+ */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class PubSubReply {
 

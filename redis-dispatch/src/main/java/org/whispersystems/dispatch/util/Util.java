@@ -5,6 +5,11 @@ import java.io.IOException;
 
 public class Util {
 
+  /**
+   * 多个字节数组合并成一个字节数组
+   * @param elements
+   * @return
+   */
   public static byte[] combine(byte[]... elements) {
     try {
       int sum = 0;

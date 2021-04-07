@@ -2,6 +2,9 @@ package org.whispersystems.dispatch.redis.protocol;
 
 import java.io.IOException;
 
+/**
+ * 多行字符串以$符号开头，后跟字符串长度
+ */
 public class StringReplyHeader {
 
   private final int stringLength;

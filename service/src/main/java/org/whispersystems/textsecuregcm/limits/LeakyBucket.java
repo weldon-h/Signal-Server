@@ -22,14 +22,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
+/**
+ * 漏斗模型
+ */
 public class LeakyBucket {
 
+  /**
+   * 漏斗大小
+   */
   private final int    bucketSize;
+
+  /**
+   * 每毫秒漏出量
+   */
   private final double leakRatePerMillis;
 
+  /**
+   * 漏斗剩余空间
+   */
   private int spaceRemaining;
+
+  /**
+   * 最新更新时间
+   */
   private long lastUpdateTimeMillis;
 
+  /**
+   * 初始化漏斗
+   * 剩余容量=漏斗大小
+   * @param bucketSize
+   * @param leakRatePerMillis
+   */
   public LeakyBucket(int bucketSize, double leakRatePerMillis) {
     this(bucketSize, leakRatePerMillis, bucketSize, System.currentTimeMillis());
   }
@@ -53,7 +76,12 @@ public class LeakyBucket {
     }
   }
 
+  /**
+   * 获取漏斗剩余空间
+   * @return
+   */
   private int getUpdatedSpaceRemaining() {
+    //上一次更新到现在的时间差值
     long elapsedTime = System.currentTimeMillis() - this.lastUpdateTimeMillis;
 
     return Math.min(this.bucketSize,

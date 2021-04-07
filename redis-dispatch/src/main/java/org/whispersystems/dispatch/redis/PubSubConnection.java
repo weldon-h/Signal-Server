@@ -40,6 +40,11 @@ public class PubSubConnection {
     this.closed       = new AtomicBoolean(false);
   }
 
+  /**
+   * 订阅
+   * @param channelName
+   * @throws IOException
+   */
   public void subscribe(String channelName) throws IOException {
     if (closed.get()) throw new IOException("Connection closed!");
 
@@ -47,6 +52,11 @@ public class PubSubConnection {
     outputStream.write(command);
   }
 
+  /**
+   * 取消订阅
+   * @param channelName
+   * @throws IOException
+   */
   public void unsubscribe(String channelName) throws IOException {
     if (closed.get()) throw new IOException("Connection closed!");
 
@@ -54,6 +64,11 @@ public class PubSubConnection {
     outputStream.write(command);
   }
 
+  /**
+   * 解析redis服务端消息：订阅成功消息、取消订阅消息、收到消息
+   * @return
+   * @throws IOException
+   */
   public PubSubReply read() throws IOException {
     if (closed.get()) throw new IOException("Connection closed!");
 
