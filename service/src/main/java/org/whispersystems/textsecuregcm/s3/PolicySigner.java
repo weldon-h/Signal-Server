@@ -1,7 +1,11 @@
+/*
+ * Copyright 2013-2020 Signal Messenger, LLC
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 package org.whispersystems.textsecuregcm.s3;
 
 import com.amazonaws.util.Base16Lower;
-import com.google.common.annotations.VisibleForTesting;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

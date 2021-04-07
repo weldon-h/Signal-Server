@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+  ~ Copyright 2013-2020 Signal Messenger, LLC
+  ~ SPDX-License-Identifier: AGPL-3.0-only
+  -->
+
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -237,6 +242,129 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+    </changeSet>
+
+    <changeSet id="11" author="moxie">
+        <createTable tableName="profiles">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+
+            <column name="uuid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="version" type="text">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="name" type="text">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="avatar" type="text">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="commitment" type="bytea">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="profiles" columnNames="uuid, version" constraintName="uuid_and_version"/>
+        
+        <createIndex tableName="profiles" indexName="profiles_uuid">
+            <column name="uuid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="12" author="moxie">
+        <createTable tableName="remote_config">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+
+            <column name="name" type="text">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="percentage" type="int">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="uuids" type="uuid[]">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="13" author="moxie">
+        <addColumn tableName="keys">
+            <column name="deleted" type="boolean"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="14" author="moxie" runInTransaction="false">
+        <sql>CREATE INDEX CONCURRENTLY deleted_key_index ON keys (deleted);</sql>
+    </changeSet>
+
+    <changeSet id="15" author="moxie" runInTransaction="false">
+        <sql>DROP INDEX CONCURRENTLY deleted_key_index;</sql>
+    </changeSet>
+
+    <changeSet id="16" author="moxie">
+        <dropColumn tableName="keys" columnName="deleted"/>
+    </changeSet>
+    
+    <changeSet id="17" author="ehren">
+        <addColumn tableName="remote_config">
+            <column name="default_value" type="text"/>
+            <column name="value" type="text"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="18" author="ehren">
+        <addColumn tableName="remote_config">
+            <column name="hash_key" type="text"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="19" author="jon">
+        <createTable tableName="feature_flags">
+            <column name="flag" type="text">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="active" type="boolean"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20" author="jon">
+        <addColumn tableName="profiles">
+            <column name="about" type="text">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="about_emoji" type="text">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="21" author="ehren">
+        <dropTable tableName="messages"/>
+    </changeSet>
+
+    <changeSet id="22" author="jon">
+        <dropTable tableName="feature_flags" />
+    </changeSet>
+
+    <changeSet id="23" author="ehren">
+        <addColumn tableName="profiles">
+            <column name="payment_address" type="text">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
     </changeSet>
 
 </databaseChangeLog>

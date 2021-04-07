@@ -1,18 +1,6 @@
-/**
- * Copyright (C) 2013 Open WhisperSystems
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*
+ * Copyright 2013-2020 Signal Messenger, LLC
+ * SPDX-License-Identifier: AGPL-3.0-only
  */
 package org.whispersystems.textsecuregcm.util;
 
@@ -23,6 +11,9 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -144,6 +135,17 @@ public class Util {
     return data;
   }
 
+  public static int toIntExact(long value) {
+    if ((int)value != value) {
+      throw new ArithmeticException("integer overflow");
+    }
+    return (int)value;
+  }
+
+  public static int currentDaysSinceEpoch() {
+    return Util.toIntExact(System.currentTimeMillis() / 1000 / 60 / 60 / 24);
+  }
+
   public static void sleep(long i) {
     try {
       Thread.sleep(i);
@@ -175,6 +177,15 @@ public class Util {
   }
 
   public static long todayInMillis() {
-    return TimeUnit.DAYS.toMillis(TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis()));
+    return todayInMillis(Clock.systemUTC());
+  }
+
+  public static long todayInMillis(Clock clock) {
+    return TimeUnit.DAYS.toMillis(TimeUnit.MILLISECONDS.toDays(clock.instant().toEpochMilli()));
+  }
+
+  public static long todayInMillisGivenOffsetFromNow(Clock clock, Duration offset) {
+    final long currentTimeSeconds = offset.addTo(clock.instant()).getLong(ChronoField.INSTANT_SECONDS);
+    return TimeUnit.DAYS.toMillis(TimeUnit.SECONDS.toDays(currentTimeSeconds));
   }
 }

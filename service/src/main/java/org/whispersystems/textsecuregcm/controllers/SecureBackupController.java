@@ -1,3 +1,8 @@
+/*
+ * Copyright 2013-2020 Signal Messenger, LLC
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 package org.whispersystems.textsecuregcm.controllers;
 
 import com.codahale.metrics.annotation.Timed;
@@ -26,6 +31,6 @@ public class SecureBackupController {
   @Path("/auth")
   @Produces(MediaType.APPLICATION_JSON)
   public ExternalServiceCredentials getAuth(@Auth Account account) {
-    return backupServiceCredentialGenerator.generateFor(account.getNumber());
+    return backupServiceCredentialGenerator.generateFor(account.getUuid().toString());
   }
 }

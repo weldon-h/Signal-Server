@@ -1,14 +1,21 @@
+/*
+ * Copyright 2013-2020 Signal Messenger, LLC
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 package org.whispersystems.textsecuregcm.limits;
 
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SharedMetricRegistries;
+import io.lettuce.core.SetArgs;
 import org.whispersystems.textsecuregcm.controllers.RateLimitExceededException;
-import org.whispersystems.textsecuregcm.redis.ReplicatedJedisPool;
+import org.whispersystems.textsecuregcm.redis.FaultTolerantRedisCluster;
 import org.whispersystems.textsecuregcm.util.Constants;
 
+import java.time.Duration;
+
 import static com.codahale.metrics.MetricRegistry.name;
-import redis.clients.jedis.Jedis;
 
 /**
  * 增加了redis全局锁
@@ -21,8 +28,8 @@ public class LockingRateLimiter extends RateLimiter {
 
   private final Meter meter;
 
-  public LockingRateLimiter(ReplicatedJedisPool cacheClient, String name, int bucketSize, double leakRatePerMinute) {
-    super(cacheClient, name, bucketSize, leakRatePerMinute);
+  public LockingRateLimiter(FaultTolerantRedisCluster cacheCluster, String name, int bucketSize, double leakRatePerMinute) {
+    super(cacheCluster, name, bucketSize, leakRatePerMinute);
 
     MetricRegistry metricRegistry = SharedMetricRegistries.getOrCreate(Constants.METRICS_NAME);
     //统计锁获取失败的次数
@@ -33,7 +40,7 @@ public class LockingRateLimiter extends RateLimiter {
   public void validate(String key, int amount) throws RateLimitExceededException {
     if (!acquireLock(key)) {
       meter.mark();
-      throw new RateLimitExceededException("Locked");
+      throw new RateLimitExceededException("Locked", Duration.ZERO);
     }
 
     try {
@@ -49,15 +56,11 @@ public class LockingRateLimiter extends RateLimiter {
   }
 
   private void releaseLock(String key) {
-    try (Jedis jedis = cacheClient.getWriteResource()) {
-      jedis.del(getLockName(key));
-    }
+    cacheCluster.useCluster(connection -> connection.sync().del(getLockName(key)));
   }
 
   private boolean acquireLock(String key) {
-    try (Jedis jedis = cacheClient.getWriteResource()) {
-      return jedis.set(getLockName(key), "L", "NX", "EX", 10) != null;
-    }
+    return cacheCluster.withCluster(connection -> connection.sync().set(getLockName(key), "L", SetArgs.Builder.nx().ex(10))) != null;
   }
 
   private String getLockName(String key) {
